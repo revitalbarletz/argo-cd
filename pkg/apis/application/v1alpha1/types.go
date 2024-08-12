@@ -1099,6 +1099,16 @@ type SourceHydratorStatus struct {
 	CurrentOperation *HydrateOperation `json:"currentOperation,omitempty" protobuf:"bytes,2,opt,name=currentOperation"`
 }
 
+func (a *ApplicationStatus) FindResource(key kube.ResourceKey) (*ResourceStatus, bool) {
+	for i := range a.Resources {
+		res := a.Resources[i]
+		if kube.NewResourceKey(res.Group, res.Kind, res.Namespace, res.Name) == key {
+			return &res, true
+		}
+	}
+	return nil, false
+}
+
 // HydrateOperation contains information about the most recent hydrate operation
 type HydrateOperation struct {
 	// StartedAt indicates when the hydrate operation started
@@ -1136,16 +1146,6 @@ const (
 	HydrateOperationPhaseFailed    HydrateOperationPhase = "Failed"
 	HydrateOperationPhaseHydrated  HydrateOperationPhase = "Hydrated"
 )
-
-func (a *ApplicationStatus) FindResource(key kube.ResourceKey) (*ResourceStatus, bool) {
-	for i := range a.Resources {
-		res := a.Resources[i]
-		if kube.NewResourceKey(res.Group, res.Kind, res.Namespace, res.Name) == key {
-			return &res, true
-		}
-	}
-	return nil, false
-}
 
 // GetRevisions will return the current revision associated with the Application.
 // If app has multisources, it will return all corresponding revisions preserving
